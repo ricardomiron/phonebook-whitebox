@@ -68,5 +68,9 @@ function createContact() {
   }))
     .then(answers => {
       console.log(answers);
+      fs.appendFile(fileName, '\n' + answers.join(', '), (err) => {
+        if (err) throw err;
+        console.log('The file has been saved!');
+      });
     });
 }
