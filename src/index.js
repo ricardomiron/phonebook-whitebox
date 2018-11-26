@@ -43,7 +43,8 @@ program
 
 program
   .option('1, -l', 'List all contacts', listContacts)
-  .option('2, -c', 'Create a new contact', createContact);
+  .option('2, -c', 'Create a new contact', createContact)
+  .option('3, -c', 'Create a new contact', createContact);
 
 
 if (!process.argv.slice(2).length) {
