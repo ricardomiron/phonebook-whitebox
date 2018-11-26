@@ -10,6 +10,7 @@ const fileName = 'contacts.txt';
 
 let contacts;
 let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
+let searchKey = 'Carolina';
 
 function initialize() {
 
@@ -75,6 +76,11 @@ function createContact() {
     });
 }
 
-function searchName() {
-  
+function searchContact(contacts, searchKey, searchValue){
+    for (var i=0; i < contacts.length; i++) {
+        if (contacts[i].searchKey === searchValue) {
+            return contacts[i];
+        }
+    }
+    return console.log('Error');
 }
