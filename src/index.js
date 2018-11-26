@@ -70,3 +70,7 @@ function createContact() {
       console.log(answers);
     });
 }
+
+function searchName() {
+  
+}
