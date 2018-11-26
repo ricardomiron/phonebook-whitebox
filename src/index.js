@@ -2,11 +2,14 @@
 const program = require('commander');
 const colors = require('colors');
 const fs = require('fs');
+const _ = require('lodash');
 
 const askContacts = require('./askContact.js');
 
 const fileName = 'contacts.txt';
+
 let contacts;
+let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
 function initialize() {
 
@@ -14,8 +17,22 @@ function initialize() {
     if (err) {
       throw err
     }
-    contacts = data;
     console.log('File read');
+
+    contacts = [];
+    data = data.split('\n');
+
+    _.map(data, (data) => {
+
+      data = data.split(',');
+      let contact = {};
+      _.map(data, (info, i) => {
+        contact[headers[i]] = info.trim();
+      });
+
+      contacts.push(contact);
+    });
+
     program.parse(process.argv);
   });
 }
@@ -24,8 +41,8 @@ program
   .version('0.0.1');
 
 program
-  .option('-l, --list', 'list all contacts', listContacts)
-  .option('-c, --create', 'create a new contact', createContact);
+  .option('1, -l', 'List all contacts', listContacts)
+  .option('2, -c', 'Create a new contact', createContact);
 
 
 if (!process.argv.slice(2).length) {
@@ -39,15 +56,16 @@ function make_red(txt) {
 }
 
 function listContacts() {
-  console.log(contacts);
+  console.table(contacts);
+  /*console.log(_.map(contacts, (c, i) => {
+    return (i + 1) + '.\t' + _.values(c).join("\t\t| ")
+  }).join('\n'));*/
 }
 
 function createContact() {
-  askContacts.askQuestions([
-    'Name: ',
-    'Lastname: ',
-    'Nickname: '
-  ])
+  askContacts.askQuestions(_.map(headers, (h) => {
+    return h + ': '
+  }))
     .then(answers => {
       console.log(answers);
     });
