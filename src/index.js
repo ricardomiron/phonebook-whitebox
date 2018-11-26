@@ -1,8 +1,7 @@
 'use strict';
-const program = require('commander');
-const colors = require('colors');
 const fs = require('fs');
 const _ = require('lodash');
+const readlineSync = require('readline-sync');
 
 const askContacts = require('./askContact.js');
 
@@ -11,48 +10,50 @@ const fileName = 'contacts.txt';
 let contacts;
 let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
+var options = ['List all contacts', 'Create contact', 'Delete contact', 'Search contact'];
+var index = readlineSync.keyInSelect(options, 'What do you want to do? ', {guide: false});
+
+initialize()
+  .then(() => {
+    index++;
+    switch (index) {
+      case 1:
+        listContacts();
+        break;
+      case 2:
+        createContact();
+        break;
+      default:
+        break;
+    }
+  });
+
 function initialize() {
 
-  fs.readFile(fileName, 'utf8', function (err, data) {
-    if (err) {
-      throw err
-    }
-    console.log('File read');
+  return new Promise(function (resolve, reject) {
 
-    contacts = [];
-    data = data.split('\n');
+    fs.readFile(fileName, 'utf8', function (err, data) {
+      if (err) {
+        reject(err);
+        throw err
+      }
+      contacts = [];
+      data = data.split('\n');
 
-    _.map(data, (data) => {
+      _.map(data, (data) => {
 
-      data = _.split(data, ',');
-      let contact = {};
-      _.map(data, (info, i) => {
-        contact[headers[i]] = info.trim();
+        data = _.split(data, ',');
+        let contact = {};
+        _.map(data, (info, i) => {
+          contact[headers[i]] = info.trim();
+        });
+
+        contacts.push(contact);
       });
-
-      contacts.push(contact);
+      resolve();
     });
 
-    program.parse(process.argv);
   });
-}
-
-program
-  .version('0.0.1');
-
-program
-  .option('1, -l', 'List all contacts', listContacts)
-  .option('2, -c', 'Create a new contact', createContact);
-
-
-if (!process.argv.slice(2).length) {
-  program.outputHelp(make_red);
-} else {
-  initialize();
-}
-
-function make_red(txt) {
-  return colors.red(txt); //display the help text in red on the console
 }
 
 function listContacts() {
