@@ -23,6 +23,9 @@ initialize()
       case 2:
         createContact();
         break;
+      case 3:
+        searchContact();
+        break;
       default:
         break;
     }
@@ -45,7 +48,7 @@ function initialize() {
         data = _.split(data, ',');
         let contact = {};
         _.map(data, (info, i) => {
-          contact[headers[i]] = info.trim();
+          contact[_.camelCase(headers[i])] = info.trim();
         });
 
         contacts.push(contact);
@@ -74,4 +77,12 @@ function createContact() {
         console.log('The file has been saved!');
       });
     });
+}
+
+function searchContact() {
+  let searchIn = ['Name (firstname + lastname)', 'Nickname', 'Phone', 'Email'];
+  let choosen = readlineSync.keyInSelect(searchIn, null, {guide: false, cancel: null});
+  
+  console.log(_.some(contacts, {name: 'Carolina'}));
+  console.log(_.findIndex(contacts, {name: 'Carolina'}));
 }
