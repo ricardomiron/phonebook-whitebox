@@ -24,7 +24,7 @@ function initialize() {
 
     _.map(data, (data) => {
 
-      data = data.split(',');
+      data = _.split(data, ',');
       let contact = {};
       _.map(data, (info, i) => {
         contact[headers[i]] = info.trim();
