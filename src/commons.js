@@ -16,7 +16,6 @@ function searchContact(contacts, property, value) {
   } else {
     c[property] = value;
   }
-
   return _.filter(contacts, c);
 }
 
