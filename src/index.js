@@ -120,11 +120,16 @@ function listContacts() {
 List all the contacts matching a specified value by first name and last name,
 nickname, phone numbers or email addresses
 */
-function searchContact(property, value) {
-  let c = {};
-  c[property] = value;
-  console.log(_.some(contacts, {name: 'Carolina'}));
-  console.log(_.filter(contacts, c));
+function searchContacts(property, value) {
+
+  let found = utils.searchContacts(contacts, property, value);
+
+  if (_.isEmpty(found)) {
+    console.log(colors.yellow('No contacts found with ' + property + ': ' + value));
+  } else {
+    console.log(colors.bold('Contact with ' + property + ': ' + value));
+    console.table(found);
+  }
 }
 
 function readFile() {
