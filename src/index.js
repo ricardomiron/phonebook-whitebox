@@ -1,8 +1,7 @@
 'use strict';
-const program = require('commander');
-const colors = require('colors');
 const fs = require('fs');
 const _ = require('lodash');
+const readlineSync = require('readline-sync');
 
 const askContacts = require('./askContact.js');
 
@@ -12,49 +11,58 @@ let contacts;
 let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 let searchKey = 'Carolina';
 
+var options = ['List all contacts', 'Create contact', 'Delete contact', 'Search contact'];
+var index = readlineSync.keyInSelect(options, 'What do you want to do? ', {guide: false});
+
+initialize()
+  .then(() => {
+    index++;
+    switch (index) {
+      case 1:
+        listContacts();
+        break;
+      case 2:
+        createContact();
+        break;
+      case 3:
+        let searchIn = ['Name (firstname + lastname)', 'Nickname', 'Phone', 'Email'];
+        let choosen = readlineSync.keyInSelect(searchIn, null, {guide: false, cancel: null});
+
+        let property = _.camelCase(headers[choosen]);
+        let value = readlineSync.question('Please write your ' + property + ': ');
+        searchContact(property, value);
+        break;
+      default:
+        break;
+    }
+  });
+
 function initialize() {
 
-  fs.readFile(fileName, 'utf8', function (err, data) {
-    if (err) {
-      throw err
-    }
-    console.log('File read');
+  return new Promise(function (resolve, reject) {
 
-    contacts = [];
-    data = data.split('\n');
+    fs.readFile(fileName, 'utf8', function (err, data) {
+      if (err) {
+        reject(err);
+        throw err
+      }
+      contacts = [];
+      data = data.split('\n');
 
-    _.map(data, (data) => {
+      _.map(data, (data) => {
 
-      data = _.split(data, ',');
-      let contact = {};
-      _.map(data, (info, i) => {
-        contact[headers[i]] = info.trim();
+        data = _.split(data, ',');
+        let contact = {};
+        _.map(data, (info, i) => {
+          contact[_.camelCase(headers[i])] = info.trim();
+        });
+
+        contacts.push(contact);
       });
-
-      contacts.push(contact);
+      resolve();
     });
 
-    program.parse(process.argv);
   });
-}
-
-program
-  .version('0.0.1');
-
-program
-  .option('1, -l', 'List all contacts', listContacts)
-  .option('2, -c', 'Create a new contact', createContact)
-  .option('3, -c', 'Create a new contact', createContact);
-
-
-if (!process.argv.slice(2).length) {
-  program.outputHelp(make_red);
-} else {
-  initialize();
-}
-
-function make_red(txt) {
-  return colors.red(txt); //display the help text in red on the console
 }
 
 function listContacts() {
@@ -77,11 +85,9 @@ function createContact() {
     });
 }
 
-function searchContact(contacts, searchKey, searchValue){
-    for (var i=0; i < contacts.length; i++) {
-        if (contacts[i].searchKey === searchValue) {
-            return contacts[i];
-        }
-    }
-    return console.log('Error');
+function searchContact(property, value) {
+  let c = {};
+  c[property] = value;
+  console.log(_.some(contacts, {name: 'Carolina'}));
+  console.log(_.filter(contacts, c));
 }
