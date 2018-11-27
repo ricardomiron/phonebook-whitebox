@@ -9,7 +9,7 @@ const askContacts = require('./askContact.js');
 const fileName = 'contacts.txt';
 
 let contacts;
-let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
+let headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
 //Menu options
 var options = ['Add contact', 'Remove contact', 'Update contact', 'Contact list', 'Search for a contact'];
