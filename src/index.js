@@ -4,9 +4,15 @@ const fs = require('fs');
 const _ = require('lodash');
 const colors = require('colors');
 const readlineSync = require('readline-sync');
+const readline = require('readline');
 
 const askContacts = require('./askContact.js');
-const utils = require('./utils.js');
+const commons = require('./commons.js');
+
+const util = require('util');
+const writeFile = util.promisify(fs.writeFile);
+const appendFile = util.promisify(fs.appendFile);
+const readFile = util.promisify(fs.readFile);
 
 const fileName = 'contacts.txt';
 
@@ -20,6 +26,8 @@ var index = readlineSync.keyInSelect(options, 'What do you want to do? \n', {gui
 initialize()
   .then(() => {
     index++;
+    let contactName, found;
+
     switch (index) {
       case 1:
         askContacts.askQuestions(headers)
@@ -31,12 +39,39 @@ initialize()
             createContact(contact);
           });
         break;
+
       case 2:
-        removeContact();
+        contactName = readlineSync.question('Please write the name of contact that you want to delete: ');
+        found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
+
+        if (!_.isEmpty(found)) {
+          let contact = _.first(found);
+          let sure = readlineSync.keyInYNStrict('Are you sure you want to delete ' + contactName + '?');
+
+          if (sure) {
+            removeContact(contact);
+          }
+        } else {
+          console.log(colors.yellow('No contacts found to delete'));
+        }
         break;
+
       case 3:
-        updateContacts();
+        contactName = readlineSync.question('Please write the name of contact that you want to update: ');
+        found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
+
+        if (!_.isEmpty(found)) {
+
+          let contact = _.first(found);
+          let chosen = readlineSync.keyInSelect(headers, 'What field do you want to update: ', {guide: false});
+
+          let property = headers[chosen];
+          let change = readlineSync.question('Please write the new ' + colors.bold(property) + ': ');
+
+          updateContact(contact, property, change);
+        }
         break;
+
       case 4:
         listContacts();
         break;
@@ -71,13 +106,8 @@ Reads a text file and maps its element in an object array
 */
 function initialize() {
 
-  return new Promise(function (resolve, reject) {
-
-    fs.readFile(fileName, 'utf8', function (err, data) {
-      if (err) {
-        reject(err);
-        throw err
-      }
+  return readFile(fileName, 'utf8')
+    .then((data) => {
       contacts = [];
       data = data.split('\n');
 
@@ -91,10 +121,11 @@ function initialize() {
 
         contacts.push(contact);
       });
-      resolve();
-    });
 
-  });
+    })
+    .catch((err) => {
+      throw err
+    });
 }
 
 /* 1. ADD CONTACTS
@@ -107,12 +138,15 @@ function createContact(contact) {
     console.log(colors.yellow('No contact to create'));
   }
 
-  let error = utils.validateContact(contact);
+  let error = commons.validateContact(contact);
   if (_.isEmpty(error)) {
-    fs.appendFile(fileName, '\n' + _.values(contact).join(', '), (err) => {
-      if (err) throw err;
-      console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
-    });
+    appendFile(fileName, _.values(contact).join(', ') + '\n')
+      .then(() => {
+        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
+      })
+      .catch(() => {
+        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
+      })
   } else {
     console.log(colors.bold.red('\nThe contact has not been saved due to: ') + error);
   }
@@ -122,15 +156,44 @@ function createContact(contact) {
 Insert new contact information: first name, last name, phone numbers,
 email addresses, nickname and birth date
 */
-function removeContact() {
+function removeContact(contact) {
+  let removed = _.first(_.remove(contacts, contact));
 
+  let aux = '';
+  _.each(contacts, (c) => {
+    aux += _.values(c).join(', ') + '\n';
+  });
+
+  writeFile(fileName, aux)
+    .then(appendFile('archive.txt', _.values(removed).join(', ') + '\n'))
+    .then(() => {
+      console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been deleted successfully');
+    })
+    .catch((err) => {
+      throw err
+    });
 }
 
 /* 3. UPDATE CONTACT
 Insert new contact information: first name, last name, phone numbers,
 email addresses, nickname and birth date
 */
-function updateContacts() {
+function updateContact(contact, property, chosen) {
+  contact[property] = chosen;
+
+  let error = commons.validateContact(contact);
+  if (_.isEmpty(error)) {
+    let aux = '';
+    _.each(contacts, (c) => {
+      aux += _.values(c).join(', ') + '\n';
+    });
+    writeFile(fileName, aux)
+      .then(() => {
+        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been updated successfully');
+      });
+  } else {
+    console.log(colors.bold.red('\nThe contact has not been updated due to: ') + error);
+  }
 
 }
 
@@ -147,7 +210,7 @@ nickname, phone numbers or email addresses
 */
 function searchContacts(property, value) {
 
-  let found = utils.searchContacts(contacts, property, value);
+  let found = commons.searchContacts(contacts, property, value);
 
   if (_.isEmpty(found)) {
     console.log(colors.yellow('No contacts found with ' + property + ': ' + value));
@@ -155,8 +218,4 @@ function searchContacts(property, value) {
     console.log(colors.bold('Contact with ' + property + ': ' + value));
     console.table(found);
   }
-}
-
-function readFile() {
-  console.table(contacts);
 }
