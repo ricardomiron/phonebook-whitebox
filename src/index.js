@@ -2,9 +2,11 @@
 'use strict';
 const fs = require('fs');
 const _ = require('lodash');
+const colors = require('colors');
 const readlineSync = require('readline-sync');
 
 const askContacts = require('./askContact.js');
+const utils = require('./utils.js');
 
 const fileName = 'contacts.txt';
 
@@ -20,7 +22,14 @@ initialize()
     index++;
     switch (index) {
       case 1:
-        createContact();
+        askContacts.askQuestions(headers)
+          .then(answers => {
+            let contact = {};
+            _.each(answers, (a, i) => {
+              contact[_.camelCase(headers[i])] = a;
+            });
+            createContact(contact);
+          });
         break;
       case 2:
         removeContact();
@@ -32,14 +41,26 @@ initialize()
         listContacts();
         break;
       case 5:
-        let searchIn = ['Name (firstname + lastname)', 'Nickname', 'Phone', 'Email'];
-        let choosen = readlineSync.keyInSelect(searchIn, null, {guide: false, cancel: null});
+        let searchIn = ['Complete name', 'Nickname', 'Phone', 'Email'];
+        let chosen = readlineSync.keyInSelect(searchIn, 'Do you want to search by: ', {guide: false});
 
-        let property = _.camelCase(headers[choosen]);
-        let value = readlineSync.question('Please write your ' + property + ': ');
-        searchContact(property, value);
+        let property;
+        switch (chosen) {
+          case 0:
+            property = ['firstname', 'lastname'];
+            break;
+          case 1:
+          case 2:
+          case 3:
+            property = _.camelCase(searchIn[chosen]);
+            break;
+        }
+
+        let value = readlineSync.question('Please write your ' + property.toString() + ': ');
+        searchContacts(property, value);
         break;
       default:
+        console.log(colors.red('Not valid option'));
         break;
     }
   });
@@ -80,17 +101,21 @@ function initialize() {
 Insert new contact information: first name, last name, phone numbers,
 email addresses, nickname and birth date
 */
-function createContact() {
-  askContacts.askQuestions(_.map(headers, (h) => {
-    return h + ': '
-  }))
-    .then(answers => {
-      console.log(answers);
-      fs.appendFile(fileName, '\n' + answers.join(', '), (err) => {
-        if (err) throw err;
-        console.log('The file has been saved!');
-      });
+function createContact(contact) {
+
+  if (_.isEmpty(contact)) {
+    console.log(colors.yellow('No contact to create'));
+  }
+
+  let error = utils.validateContact(contact);
+  if (_.isEmpty(error)) {
+    fs.appendFile(fileName, '\n' + _.values(contact).join(', '), (err) => {
+      if (err) throw err;
+      console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
     });
+  } else {
+    console.log(colors.bold.red('\nThe contact has not been saved due to: ') + error);
+  }
 }
 
 /* 2. REMOVE CONTACT
