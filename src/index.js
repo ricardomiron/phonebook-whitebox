@@ -24,7 +24,12 @@ initialize()
         createContact();
         break;
       case 3:
-        searchContact();
+        let searchIn = ['Name (firstname + lastname)', 'Nickname', 'Phone', 'Email'];
+        let choosen = readlineSync.keyInSelect(searchIn, null, {guide: false, cancel: null});
+
+        let property = _.camelCase(headers[choosen]);
+        let value = readlineSync.question('Please write your ' + property + ': ');
+        searchContact(property, value);
         break;
       default:
         break;
@@ -79,10 +84,9 @@ function createContact() {
     });
 }
 
-function searchContact() {
-  let searchIn = ['Name (firstname + lastname)', 'Nickname', 'Phone', 'Email'];
-  let choosen = readlineSync.keyInSelect(searchIn, null, {guide: false, cancel: null});
-  
+function searchContact(property, value) {
+  let c = {};
+  c[property] = value;
   console.log(_.some(contacts, {name: 'Carolina'}));
-  console.log(_.findIndex(contacts, {name: 'Carolina'}));
+  console.log(_.filter(contacts, c));
 }
