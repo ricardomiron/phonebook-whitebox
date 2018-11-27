@@ -1,3 +1,5 @@
+'use strict';
+const _ = require('lodash');
 const readline = require('readline');
 
 const AskQuestion = (rl, question) => {
@@ -16,8 +18,25 @@ const Ask = function (questions) {
     });
 
     let results = [];
+
     for (let i = 0; i < questions.length; i++) {
-      const result = await AskQuestion(rl, questions[i]);
+      let question = questions[i];
+      let result;
+
+      if (_.lowerCase(question) === 'email' || _.lowerCase(question) === 'phone') {
+        result = '';
+        for (let j = 0; j < 4; j++) {
+          let answer = await AskQuestion(rl, question + ' ' + (j + 1) + ': ');
+          if (_.isEmpty(answer)) {
+            break;
+          } else {
+            result += answer + ';';
+          }
+        }
+      } else {
+        question = question + ': ';
+        result = await AskQuestion(rl, question);
+      }
       results.push(result);
     }
     rl.close();
