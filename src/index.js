@@ -138,8 +138,8 @@ function createContact(contact) {
     console.log(colors.yellow('No contact to create'));
   }
 
-  let error = commons.validateContact(contact);
-  if (_.isEmpty(error)) {
+  let validation = commons.validateContact(contact);
+  if (validation.isValid) {
     appendFile(fileName, _.values(contact).join(', ') + '\n')
       .then(() => {
         console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
@@ -148,7 +148,7 @@ function createContact(contact) {
         console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
       })
   } else {
-    console.log(colors.bold.red('\nThe contact has not been saved due to: ') + error);
+    console.log(colors.bold.red('\nThe contact has not been saved due to: ') + validation.error);
   }
 }
 
