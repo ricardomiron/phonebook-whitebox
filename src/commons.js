@@ -2,6 +2,10 @@
 const _ = require('lodash');
 const colors = require('colors');
 
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+
 function searchContact(contacts, property, value) {
 
   let c = {};
@@ -60,8 +64,32 @@ function validateContact(contact) {
   };
 }
 
+function readContactsFile(fileName) {
+  return readFile(fileName, 'utf8');
+}
+
+function createContactsObject(contactsAsString, headers) {
+
+  let contacts = [];
+  let data = contactsAsString;
+
+  data = data.split('\n');
+  _.map(data, (data) => {
+
+    data = _.split(data, ',');
+    let contact = {};
+    _.map(data, (info, i) => {
+      contact[_.camelCase(headers[i])] = info.trim();
+    });
+
+    contacts.push(contact);
+  });
+  return contacts;
+}
 
 module.exports = {
   searchContacts: searchContact,
-  validateContact: validateContact
+  validateContact: validateContact,
+  readContactsFile: readContactsFile,
+  createContactsObject: createContactsObject
 };
