@@ -30,9 +30,7 @@ function validateContact(contact) {
     }
   });
 
-  if (missingData) {
-    return error;
-  } else {
+  if (!missingData) {
     //console.log('Validate contact', contact);
     if (contact.firstname.length > 50) {
       error += 'Firstname is greater than 50 characters';
@@ -52,12 +50,14 @@ function validateContact(contact) {
     let phones = _.compact(contact.phone.split(';'));
     _.each(phones, (phone) => {
       if (!_.isNumber(phone)) {
-        error += '\n- Phone number ' + colors.bold(phone) + ' is incorrect. It must be only numbers';
+        error += '\n- Phone number phone is incorrect. It must be only numbers';
       }
     });
-
-    return error;
   }
+  return {
+    error: error,
+    isValid: _.isEmpty(error)
+  };
 }
 
 
