@@ -10,7 +10,7 @@ describe('Test cases - "commons" functions', function () {
   before(function (done) {
 
     this.timeout(2000);
-    let data = require('./data');
+    let data = require('./data/data');
     contacts = data.contacts;
     contact = data.contact;
     contact2 = data.contact2;
@@ -43,6 +43,7 @@ describe('Test cases - "commons" functions', function () {
     assert.deepEqual(_.first(found), contact);
   });
 
+
   it('Should check a list of contacts is created', function () {
     let contactsAsString = 'Carolina, Lopez, lopenchi, 593984624937, lopenchii@gmail.com; caro.lopez@hotmail.com, 19/12/1993';
     let headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
@@ -52,4 +53,60 @@ describe('Test cases - "commons" functions', function () {
     assert.equal(contacts.length, 1);
     assert.deepEqual(_.first(contacts), contact);
   });
+
+  /*Files methods*/
+  let fileData;
+  let fileName = 'test/data/contacts-test.txt';
+
+  it('Should check file was read', function (done) {
+    commons.readContactsFile(fileName)
+      .then((data) => {
+        fileData = data;
+        assert.ok(_.isString(fileData));
+        assert.ok(!_.isEmpty(fileData));
+        done();
+      });
+  });
+
+  it('Should check read file for not existing file', function (done) {
+
+    this.timeout(6000);
+
+    commons.readContactsFile('test/data/no-file.txt')
+      .catch((err) => {
+        assert.ok(!_.isEmpty(err));
+        done();
+      });
+  });
+
+  it('Should check if contact was added to file', function (done) {
+
+    commons.addContactToFile(fileName, contact)
+      .then(() => {
+        return commons.readContactsFile(fileName);
+      })
+      .then((data) => {
+        assert.equal(_.size(data.split('\n')), 2);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      })
+  });
+
+  it('Should check if contacts was rewritten', function (done) {
+
+    commons.rewriteContactsFile(fileName, contacts)
+      .then(() => {
+        return commons.readContactsFile(fileName);
+      })
+      .then((data) => {
+        assert.equal(_.size(data.split('\n')), 1);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      })
+  });
+
 });
