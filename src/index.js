@@ -116,5 +116,5 @@ function startSearchContact() {
   }
 
   let value = readlineSync.question('Please write your ' + property.toString() + ': ');
-  actions.searchContacts(property, value);
+  actions.searchContacts(contacts, property, value);
 }
