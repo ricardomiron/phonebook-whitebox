@@ -32,11 +32,15 @@ describe('Test cases - "commons" functions', function () {
   });
 
   it('Should search a contact', function () {
-    assert.ok(!_.isEmpty(commons.searchContacts(contacts, 'firstname', 'Carolina')));
+    let found = commons.searchContacts(contacts, 'firstname', 'Carolina');
+    assert.ok(!_.isEmpty(found) && _.isArray(found));
+    assert.deepEqual(_.first(found), contact);
   });
 
   it('Should search a contact with multiple properties', function () {
-    assert.ok(!_.isEmpty(commons.searchContacts(contacts, ['firstname', 'lastname'], 'Carolina Lopez')));
+    let found = commons.searchContacts(contacts, ['firstname', 'lastname'], 'Carolina Lopez');
+    assert.ok(!_.isEmpty(found) && _.isArray(found));
+    assert.deepEqual(_.first(found), contact);
   });
 
   it('Should check a list of contacts is created', function () {
