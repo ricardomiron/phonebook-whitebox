@@ -28,6 +28,7 @@ describe('Test cases: "program actions" functions', function () {
     assert.equal(actions.getActionFunction(2), 'removeContact');
     assert.equal(actions.getActionFunction(3), 'updateContact');
     assert.equal(actions.getActionFunction(4), 'listContacts');
+    assert.equal(actions.getActionFunction(5), 'searchContact');
     done();
   });
 
@@ -40,7 +41,9 @@ describe('Test cases: "program actions" functions', function () {
 
   it('Should check create contact function - successful', function (done) {
     this.timeout(10000);
-    actions.createContact(contact);
+    let creation = actions.createContact(contact);
+    assert.ok(creation.isCreated);
+
     commons.readContactsFile('test/data/contacts-test.txt')
       .then((data) => {
         assert.equal(_.last(_.compact(data.split('\n'))), _.values(contact).join(', '));
@@ -51,15 +54,16 @@ describe('Test cases: "program actions" functions', function () {
   it('Should check create contact function - error', function (done) {
     this.timeout(10000);
     let contactChanged = _.cloneDeep(contact);
-    contactChanged.firstname = undefined;
+    contactChanged.firstname = '';
     let creation = actions.createContact(contactChanged);
     assert.ok(!creation.isCreated);
     done();
   });
 
   it('Should check remove contact function - successful', function (done) {
-    console.log(contactsToRemove);
-    actions.removeContact(contactsToRemove, contact);
+    //console.log(contactsToRemove);
+    let deletion = actions.removeContact(contactsToRemove, contact);
+    assert.ok(deletion.isDeleted);
     commons.readContactsFile('test/data/archive-test.txt')
       .then((data) => {
         assert.equal(_.last(_.compact(data.split('\n'))), _.values(contact).join(', '));
@@ -68,7 +72,8 @@ describe('Test cases: "program actions" functions', function () {
   });
 
   it('Should check remove contact function - error', function (done) {
-    actions.removeContact(contactsToRemove, contact2);
+    let deletion = actions.removeContact(contactsToRemove, contact2);
+    assert.ok(!deletion.isDeleted);
     done();
   });
 
@@ -88,13 +93,12 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
-  it('Should check update contact function', function (done) {
-
-    let update = actions.updateContact(contact, 'lastname', 'Guanipatin');
+  it('Should check update contact function - succesful', function (done) {
+    let original = _.cloneDeep(contact);
+    let update = actions.updateContact(contact, 'lastname', 'Guanipatin', contacts);
     assert.ok(update.isUpdated);
-    assert.ok(_.isEmpty(update.error));
 
-    assert.notDeepEqual(update.contact, contact);
+    assert.notDeepEqual(update.contact, original);
     done();
   });
 
@@ -111,8 +115,8 @@ describe('Test cases: "program actions" functions', function () {
   });
 
   after(function (done) {
-    unlink('test/data/contacts-test.txt')
-      .then(unlink('test/data/archive-test.txt'))
+    commons.rewriteContactsFile('test/data/contacts-test.txt', '')
+      .then(commons.rewriteContactsFile('test/data/archive-test.txt', ''))
       .then(() => done());
   });
 });

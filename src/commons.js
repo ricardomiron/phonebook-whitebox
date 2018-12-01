@@ -55,7 +55,7 @@ function validateContact(contact) {
 
     let phones = _.compact(contact.phone.split(';'));
     _.each(phones, (phone) => {
-      if (!_.isNumber(_.parseInt(phone))) {
+      if (!_.isNumber(phone)) {
         error += '\n- Phone number ' + phone + 'is incorrect. It must be only numbers';
       }
     });

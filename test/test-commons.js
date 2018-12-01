@@ -60,7 +60,7 @@ describe('Test cases - "commons" functions', function () {
 
   /*Files methods*/
   let fileData;
-  let fileName = 'test/data/test-contacts.txt';
+  let fileName = 'test/data/contacts-test.txt';
 
   it('Should check read file for not existing file', function (done) {
 
@@ -116,7 +116,7 @@ describe('Test cases - "commons" functions', function () {
   });
 
   after(function (done) {
-    unlink(fileName)
+    commons.rewriteContactsFile(fileName, '')
       .then(() => done());
   })
 });

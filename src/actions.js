@@ -76,14 +76,15 @@ email addresses, nickname and birth date
 */
 function removeContact(contacts, contactToRemove) {
   let removed = _.first(_.remove(contacts, contactToRemove));
-  commons.rewriteContactsFile(filename, contacts)
-    .then(commons.addContactToFile(filenameArchive, removed))
-    .then(() => {
-      console.log('The contact ' + colors.bold(contactToRemove.firstname + ' ' + contactToRemove.lastname) + ' has been deleted successfully');
-    })
-    .catch((err) => {
-      throw err
-    });
+  if (!_.isEmpty(removed)) {
+    commons.rewriteContactsFile(filename, contacts);
+    commons.addContactToFile(filenameArchive, removed);
+    console.log('The contact ' + colors.bold(contactToRemove.firstname + ' ' + contactToRemove.lastname) + ' has been deleted successfully');
+    return {isDeleted: true}
+
+  } else {
+    return {isDeleted: false}
+  }
 }
 
 /* 3. UPDATE CONTACT
@@ -92,14 +93,14 @@ email addresses, nickname and birth date
 */
 function updateContact(contact, property, change) {
 
-  let updatedContact = _.cloneDeep(contact);
+  let updatedContact = contact;
   updatedContact[_.camelCase(property)] = change;
+
   let validation = commons.validateContact(updatedContact);
 
   return {
-    isUpdated: validation.isValid,
-    contact: updatedContact,
-    error: validation.error
+    isUpdated: (validation.isValid),
+    contact: (validation.isValid) ? updatedContact : contact
   }
 }
 
@@ -107,7 +108,7 @@ function updateContact(contact, property, change) {
 List all the contacts from an object array
 */
 function listContacts(contacts) {
-  console.log('--->', _.isArray(contacts), _.size(contacts) > 0);
+
   let shouldDisplay = (_.isArray(contacts) && _.size(contacts) > 0);
   if (shouldDisplay) {
     console.table(contacts);
