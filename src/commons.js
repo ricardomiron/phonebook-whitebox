@@ -71,7 +71,7 @@ function createContactsList(contactsAsString, headers) {
   let contacts = [];
   let data = contactsAsString;
 
-  data = data.split('\n');
+  data = _.compact(data.split('\n'));
   _.map(data, (data) => {
 
     data = _.split(data, ',');
