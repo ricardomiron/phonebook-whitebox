@@ -5,9 +5,6 @@ const fs = require('fs');
 
 const commons = require('./commons');
 
-const writeFile = util.promisify(fs.writeFile);
-const appendFile = util.promisify(fs.appendFile);
-
 function getActionFunction(actionId) {
   let functionName;
   switch (actionId) {
@@ -25,12 +22,13 @@ function getActionFunction(actionId) {
       break;
 
     case 4:
-      listContacts();
+      functionName = 'listContacts';
       break;
 
     case 5:
-
+      functionName = 'searchContact';
       break;
+
     default:
       console.log(colors.red('Not valid option'));
       break;
@@ -51,13 +49,7 @@ function createContact(contact) {
 
   let validation = commons.validateContact(contact);
   if (validation.isValid) {
-    appendFile(fileName, _.values(contact).join(', ') + '\n')
-      .then(() => {
-        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
-      })
-      .catch(() => {
-        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been saved');
-      })
+
   } else {
     console.log(colors.bold.red('\nThe contact has not been saved due to: ') + validation.error);
   }
@@ -70,13 +62,8 @@ email addresses, nickname and birth date
 function removeContact(contacts, contactToRemove) {
   let removed = _.first(_.remove(contacts, contactToRemove));
 
-  let aux = '';
-  _.each(contacts, (c) => {
-    aux += _.values(c).join(', ') + '\n';
-  });
-
-  writeFile(fileName, aux)
-    .then(appendFile('archive.txt', _.values(removed).join(', ') + '\n'))
+  commons.rewriteContactsFile('contacts.txt', contacts)
+    .then(commons.addContactToFile('archive.txt', removed))
     .then(() => {
       console.log('The contact ' + colors.bold(contactToRemove.firstname + ' ' + contactToRemove.lastname) + ' has been deleted successfully');
     })
@@ -89,29 +76,23 @@ function removeContact(contacts, contactToRemove) {
 Insert new contact information: first name, last name, phone numbers,
 email addresses, nickname and birth date
 */
-function updateContact(contact, property, chosen) {
-  contact[property] = chosen;
+function updateContact(contact, property, change) {
 
-  let error = commons.validateContact(contact);
-  if (_.isEmpty(error)) {
-    let aux = '';
-    _.each(contacts, (c) => {
-      aux += _.values(c).join(', ') + '\n';
-    });
-    writeFile(fileName, aux)
-      .then(() => {
-        console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been updated successfully');
-      });
-  } else {
-    console.log(colors.bold.red('\nThe contact has not been updated due to: ') + error);
+  let updatedContact = _.cloneDeep(contact);
+  updatedContact[_.camelCase(property)] = change;
+  let validation = commons.validateContact(updatedContact);
+
+  return {
+    isUpdated: validation.isValid,
+    contact: updatedContact,
+    error: validation.error
   }
-
 }
 
 /* 4. CONTACT LIST
 List all the contacts from an object array
 */
-function listContacts() {
+function listContacts(contacts) {
   console.table(contacts);
 }
 
@@ -119,7 +100,7 @@ function listContacts() {
 List all the contacts matching a specified value by first name and last name,
 nickname, phone numbers or email addresses
 */
-function searchContacts(property, value) {
+function searchContacts(contacts, property, value) {
 
   let found = commons.searchContacts(contacts, property, value);
 

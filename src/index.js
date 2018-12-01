@@ -1,52 +1,47 @@
 //Import libraries
 'use strict';
+require('dotenv');
 const _ = require('lodash');
 const colors = require('colors');
-
 const readlineSync = require('readline-sync');
-const readline = require('readline');
 
-const askContacts = require('./askContact.js');
+const readlineInfo = require('./readlineInfo.js');
 const commons = require('./commons.js');
 const actions = require('./actions.js');
 
 const fileName = 'contacts.txt';
 const headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
+let contacts;
 
 function main() {
 
-  let contacts;
   //Menu options
   let options = ['Add contact', 'Remove contact', 'Update contact', 'Contact list', 'Search for a contact'];
-  let index = readlineSync.keyInSelect(options, 'What do you want to do? \n', {guide: false});
 
   // Reads text file and maps its element in an object array
   commons.readContactsFile(fileName)
     .then((data) => {
-      return commons.createContactsObject(data, headers);
+      return commons.createContactsList(data, headers);
     })
     .then((data) => {
       contacts = data;
+
+      let index = readlineSync.keyInSelect(options, 'What do you want to do? ', {guide: false});
+      console.log(colors.bold('**' + options[index] + '**'));
       ++index;
       let functionName = actions.getActionFunction(index);
-      functionName = 'ask' + _.upperFirst(functionName);
-      eval(functionName)();
+      functionName = 'start' + _.upperFirst(functionName);
+      eval(functionName)()
     })
     .catch(console.log);
 }
 
-main();
-
-
-/* Ask information by console
-* */
-function askInformation(question) {
-  return readlineSync.question(question);
+if (!(process.env.NODE_ENV === 'test')) {
+  main();
 }
 
-
-function askCreateContact() {
-  askContacts.askQuestions(headers)
+function startCreateContact() {
+  readlineInfo.askContactInfo(headers)
     .then(answers => {
       let contact = {};
       _.each(answers, (a, i) => {
@@ -56,9 +51,9 @@ function askCreateContact() {
     });
 }
 
-function askRemoveContact() {
+function startRemoveContact() {
 
-  let contactName = askInformation('Please write the name of contact that you want to delete: ');
+  let contactName = readlineSync.question('Please write the name of contact that you want to delete: ');
   let found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
 
   if (!_.isEmpty(found)) {
@@ -73,23 +68,38 @@ function askRemoveContact() {
   }
 }
 
-function askUpdateContact() {
-  let contactName = askInformation('Please write the name of contact that you want to update: ');
+function startUpdateContact() {
+  let contactName = readlineSync.question('Please write the name of contact that you want to update: ');
   let found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
 
   if (!_.isEmpty(found)) {
 
     let contact = _.first(found);
-    let chosen = readlineSync.keyInSelect(headers, 'What field do you want to update: ', {guide: false});
+    let chosen = readlineSync.keyInSelect(headers, 'What field do you want to update: ',);
 
     let property = headers[chosen];
     let change = readlineSync.question('Please write the new ' + colors.bold(property) + ': ');
 
-    actions.updateContact(contact, property, change);
+    let update = actions.updateContact(contact, property, change);
+
+    if (update.isUpdated) {
+      contact = update.contact;
+      commons.rewriteContactsFile(fileName, contacts)
+        .then(() => {
+          console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been updated successfully');
+        });
+    } else {
+      console.log(colors.bold.red('The contact has not been updated due to: ') + validation.error);
+    }
+
   }
 }
 
-function askSearchContact() {
+function startListContacts() {
+  actions.listContacts(contacts);
+}
+
+function startSearchContact() {
   let searchIn = ['Complete name', 'Nickname', 'Phone', 'Email'];
   let chosen = readlineSync.keyInSelect(searchIn, 'Do you want to search by: ', {guide: false});
 

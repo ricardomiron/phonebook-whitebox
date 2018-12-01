@@ -2,7 +2,7 @@
 const _ = require('lodash');
 const readline = require('readline');
 
-const AskQuestion = (rl, question) => {
+const askQuestion = (rl, question) => {
   return new Promise(resolve => {
     rl.question(question, (answer) => {
       resolve(answer);
@@ -10,7 +10,7 @@ const AskQuestion = (rl, question) => {
   });
 };
 
-const Ask = function (questions) {
+const askContactInfo = function (questions) {
   return new Promise(async resolve => {
     let rl = readline.createInterface({
       input: process.stdin,
@@ -26,7 +26,7 @@ const Ask = function (questions) {
       if (_.lowerCase(question) === 'email' || _.lowerCase(question) === 'phone') {
         result = '';
         for (let j = 0; j < 4; j++) {
-          let answer = await AskQuestion(rl, question + ' ' + (j + 1) + ': ');
+          let answer = await askQuestion(rl, question + ' ' + (j + 1) + ': ');
           if (_.isEmpty(answer)) {
             break;
           } else {
@@ -35,7 +35,7 @@ const Ask = function (questions) {
         }
       } else {
         question = question + ': ';
-        result = await AskQuestion(rl, question);
+        result = await askQuestion(rl, question);
       }
       results.push(result);
     }
@@ -45,5 +45,5 @@ const Ask = function (questions) {
 };
 
 module.exports = {
-  askQuestions: Ask
+  askContactInfo: askContactInfo
 };
