@@ -5,37 +5,7 @@ const commons = require('../src/commons');
 let contacts = [];
 let contact, contact2, contact3;
 
-
-describe('Test cases for contacts file', function () {
-
-  it('Should check file was read', function (done) {
-
-    let fileData;
-    commons.readContactsFile('contacts.txt')
-      .then((data) => {
-        fileData = data;
-
-        assert.ok(_.isString(fileData));
-        assert.ok(!_.isEmpty(fileData));
-        done();
-      });
-  });
-
-  it('Should check file was read', function (done) {
-
-    this.timeout(5000);
-    let fileData;
-    commons.readContactsFile('no-file.txt')
-      .catch((err) => {
-        console.log(err);
-        assert.ok(!_.isEmpty(err));
-        done();
-      });
-  });
-
-});
-
-describe('Test cases 1', function () {
+describe('Test cases - "commons" functions', function () {
 
   before(function (done) {
 
@@ -49,7 +19,8 @@ describe('Test cases 1', function () {
   });
 
   it('Should check a valid contact', function () {
-    assert.equal(commons.validateContact(contact).isValid, true);
+    let validation = commons.validateContact(contact);
+    assert.equal(validation.isValid, true);
   });
 
   it('Should check a non validate contact', function () {
@@ -66,5 +37,15 @@ describe('Test cases 1', function () {
 
   it('Should search a contact with multiple properties', function () {
     assert.ok(!_.isEmpty(commons.searchContacts(contacts, ['firstname', 'lastname'], 'Carolina Lopez')));
+  });
+
+  it('Should check a list of contacts is created', function () {
+    let contactsAsString = 'Carolina, Lopez, lopenchi, 593984624937, lopenchii@gmail.com; caro.lopez@hotmail.com, 19/12/1993';
+    let headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
+
+    let contacts = commons.createContactsList(contactsAsString, headers);
+    assert.ok(_.isArray(contacts));
+    assert.equal(contacts.length, 1);
+    assert.deepEqual(_.first(contacts), contact);
   });
 });

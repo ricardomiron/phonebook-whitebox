@@ -68,7 +68,7 @@ function readContactsFile(fileName) {
   return readFile(fileName, 'utf8');
 }
 
-function createContactsObject(contactsAsString, headers) {
+function createContactsList(contactsAsString, headers) {
 
   let contacts = [];
   let data = contactsAsString;
@@ -91,5 +91,5 @@ module.exports = {
   searchContacts: searchContact,
   validateContact: validateContact,
   readContactsFile: readContactsFile,
-  createContactsObject: createContactsObject
+  createContactsList: createContactsList
 };

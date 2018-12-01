@@ -3,7 +3,8 @@ let contact = {
   lastname: 'Lopez',
   nickname: 'lopenchi',
   phone: '593984624937',
-  email: 'lopenchi@gmail.com'
+  email: 'lopenchii@gmail.com; caro.lopez@hotmail.com',
+  birthdate: '19/12/1993'
 };
 
 let contact2 = {
@@ -19,7 +20,7 @@ let contact3 = {
   lastname: 'Christiansadsadsdfsdfsdfsdfsdfsdfqwertyuiokmnwertyu',
   nickname: 'christian',
   phone: '09876543456',
-  email: 'chris@gmail.com'
+  email: 'chris; chris@gmail.com'
 };
 
 
