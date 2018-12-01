@@ -37,21 +37,36 @@ function getActionFunction(actionId) {
   return functionName;
 }
 
+let filename = 'contacts.txt';
+let filenameArchive = 'archive.txt';
+
+if (process.env.NODE_ENV == 'test') {
+  filename = 'test/data/contacts-test.txt';
+  filenameArchive = 'test/data/archive-test.txt';
+}
+
 /* 1. ADD CONTACTS
 Insert new contact information: first name, last name, phone numbers,
 email addresses, nickname and birth date
 */
 function createContact(contact) {
 
-  if (_.isEmpty(contact)) {
+  let isCreated = false;
+  if (_.isUndefined(contact) || _.isEmpty(contact)) {
     console.log(colors.yellow('No contact to create'));
   }
 
   let validation = commons.validateContact(contact);
   if (validation.isValid) {
-
+    commons.addContactToFile(filename, contact);
+    console.log(colors.bold('\nThe contact has been saved successfully: '));
+    isCreated = true;
   } else {
     console.log(colors.bold.red('\nThe contact has not been saved due to: ') + validation.error);
+  }
+
+  return {
+    isCreated: isCreated
   }
 }
 
@@ -61,9 +76,8 @@ email addresses, nickname and birth date
 */
 function removeContact(contacts, contactToRemove) {
   let removed = _.first(_.remove(contacts, contactToRemove));
-
-  commons.rewriteContactsFile('contacts.txt', contacts)
-    .then(commons.addContactToFile('archive.txt', removed))
+  commons.rewriteContactsFile(filename, contacts)
+    .then(commons.addContactToFile(filenameArchive, removed))
     .then(() => {
       console.log('The contact ' + colors.bold(contactToRemove.firstname + ' ' + contactToRemove.lastname) + ' has been deleted successfully');
     })
@@ -93,7 +107,14 @@ function updateContact(contact, property, change) {
 List all the contacts from an object array
 */
 function listContacts(contacts) {
-  console.table(contacts);
+  console.log('--->', _.isArray(contacts), _.size(contacts) > 0);
+  let shouldDisplay = (_.isArray(contacts) && _.size(contacts) > 0);
+  if (shouldDisplay) {
+    console.table(contacts);
+  } else {
+    console.log('No contacts to show');
+  }
+  return shouldDisplay;
 }
 
 /* 5. SEARCH CONTACT
@@ -104,12 +125,15 @@ function searchContacts(contacts, property, value) {
 
   let found = commons.searchContacts(contacts, property, value);
 
-  if (_.isEmpty(found)) {
-    console.log(colors.yellow('No contacts found with ' + property + ': ' + value));
-  } else {
+  let shouldDisplay = (_.isArray(found) && _.size(found) > 0);
+  if (shouldDisplay) {
     console.log(colors.bold('Contact with ' + property + ': ' + value));
     console.table(found);
+  } else {
+    console.log(colors.yellow('No contacts found with ' + property + ': ' + value));
   }
+
+  return {displayed: shouldDisplay};
 }
 
 module.exports = {

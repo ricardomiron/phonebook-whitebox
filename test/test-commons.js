@@ -1,5 +1,9 @@
 const assert = require('assert');
 const _ = require('lodash');
+const fs = require('fs');
+const util = require('util');
+const unlink = util.promisify(fs.unlink);
+
 const commons = require('../src/commons');
 
 let contacts = [];
@@ -9,7 +13,7 @@ describe('Test cases - "commons" functions', function () {
 
   before(function (done) {
 
-    this.timeout(2000);
+    this.timeout(10000);
     let data = require('./data/data');
     contacts = data.contacts;
     contact = data.contact;
@@ -56,17 +60,7 @@ describe('Test cases - "commons" functions', function () {
 
   /*Files methods*/
   let fileData;
-  let fileName = 'test/data/contacts-test.txt';
-
-  it('Should check file was read', function (done) {
-    commons.readContactsFile(fileName)
-      .then((data) => {
-        fileData = data;
-        assert.ok(_.isString(fileData));
-        assert.ok(!_.isEmpty(fileData));
-        done();
-      });
-  });
+  let fileName = 'test/data/test-contacts.txt';
 
   it('Should check read file for not existing file', function (done) {
 
@@ -86,7 +80,7 @@ describe('Test cases - "commons" functions', function () {
         return commons.readContactsFile(fileName);
       })
       .then((data) => {
-        assert.equal(_.size(data.split('\n')), 2);
+        assert.equal(_.size(_.compact(data.split('\n'))), 1); // Empty file when run test
         done();
       })
       .catch((err) => {
@@ -94,14 +88,26 @@ describe('Test cases - "commons" functions', function () {
       })
   });
 
+  it('Should check file was read', function (done) {
+    commons.readContactsFile(fileName)
+      .then((data) => {
+        fileData = data;
+        assert.ok(_.isString(fileData));
+        assert.ok(!_.isEmpty(fileData));
+        done();
+      });
+  });
+
   it('Should check if contacts was rewritten', function (done) {
 
+    contacts.push(contact2);
+    contacts.push(contact3);
     commons.rewriteContactsFile(fileName, contacts)
       .then(() => {
         return commons.readContactsFile(fileName);
       })
       .then((data) => {
-        assert.equal(_.size(data.split('\n')), 1);
+        assert.equal(_.size(_.compact(data.split('\n'))), 3);
         done();
       })
       .catch((err) => {
@@ -109,4 +115,8 @@ describe('Test cases - "commons" functions', function () {
       })
   });
 
+  after(function (done) {
+    unlink(fileName)
+      .then(() => done());
+  })
 });
