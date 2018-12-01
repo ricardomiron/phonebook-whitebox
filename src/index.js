@@ -89,7 +89,7 @@ function startUpdateContact() {
           console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been updated successfully');
         });
     } else {
-      console.log(colors.bold.red('The contact has not been updated due to: ') + validation.error);
+      console.log(colors.bold.red('The contact has not been updated due to: ') + update.error);
     }
 
   }

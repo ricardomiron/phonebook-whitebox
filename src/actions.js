@@ -100,7 +100,8 @@ function updateContact(contact, property, change) {
 
   return {
     isUpdated: (validation.isValid),
-    contact: (validation.isValid) ? updatedContact : contact
+    contact: (validation.isValid) ? updatedContact : contact,
+    error: validation.error
   }
 }
 
