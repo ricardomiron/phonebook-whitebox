@@ -31,7 +31,7 @@ function validateContact(contact) {
 
   _.each(_.keys(contact), (key) => {
     if (_.isEmpty(contact[key])) {
-      error += '\n- There is no data for: ' + key + '\n';
+      error += '\n- There is no data for: ' + key;
       missingData = true;
     }
   });
@@ -49,14 +49,14 @@ function validateContact(contact) {
     let emails = _.compact(contact.email.split(';'));
     _.each(emails, (email) => {
       if (!_.includes(email, '@') || !_.includes(email, '.')) {
-        error += '\n- Email ' + colors.bold(email) + ' is incorrect. It must include: "@" and "."';
+        error += '\n- Email "' + email + '" is incorrect. It must include: "@" and "."';
       }
     });
 
     let phones = _.compact(contact.phone.split(';'));
     _.each(phones, (phone) => {
       if (!_.isNumber(phone)) {
-        error += '\n- Phone number ' + phone + 'is incorrect. It must be only numbers';
+        error += '\n- Phone number "' + phone + '" is incorrect. It must be only numbers';
       }
     });
   }

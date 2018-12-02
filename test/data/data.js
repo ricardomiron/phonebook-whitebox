@@ -12,7 +12,8 @@ let contact2 = {
   lastname: 'Miron',
   nickname: '',
   phone: '',
-  email: ''
+  email: '',
+  birthdate: ''
 };
 
 let contact3 = {

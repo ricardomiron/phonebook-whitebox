@@ -25,15 +25,27 @@ describe('Test cases: "program common" functions', function () {
   // COMMON PROGRAM FUNCTIONALITY
   it('TC12: Should check a valid contact', function () {
     let validation = commons.validateContact(contact);
+    assert.equal(_.isEmpty(validation.error), validation.error);
     assert.equal(validation.isValid, true);
   });
 
   it('TC13: Should check a non valid contact', function () {
-    assert.equal(commons.validateContact(contact2).isValid, false);
+    let validation = commons.validateContact(contact2);
+    assert.equal(validation.isValid, false);
+    let errorMessage = '- There is no data for: nickname\n' +
+      '- There is no data for: phone\n' +
+      '- There is no data for: email\n' +
+      '- There is no data for: birthdate\n';
+    assert.equal(_.trim(validation.error), _.trim(errorMessage));
   });
 
   it('TC14: Should check a non valid contact', function () {
-    assert.equal(commons.validateContact(contact3).isValid, false);
+    let validation = commons.validateContact(contact3);
+    assert.equal(validation.isValid, false);
+    let errorMessage = '- Firstname is greater than 50 characters\n' +
+      '- Lastname is greater than 50 characters\n' +
+      '- Email "chris" is incorrect. It must include: "@" and "."';
+    assert.equal(_.trim(validation.error), errorMessage);
   });
 
   it('TC15: Should search a contact with one property', function () {
@@ -63,13 +75,15 @@ describe('Test cases: "program common" functions', function () {
   let fileData;
   let fileName = 'test/data/contacts-test.txt';
 
-  it('TC18: Should check reading a file for not existing path', function (done) {
+  it('TC18: Should check reading a file for not existing file', function (done) {
 
     this.timeout(6000);
 
     commons.readContactsFile('test/data/no-file.txt')
       .catch((err) => {
+        //console.log(err);
         assert.ok(!_.isEmpty(err));
+        assert.ok(_.includes(err.toString(), 'no such file or directory'));
         done();
       });
   });
