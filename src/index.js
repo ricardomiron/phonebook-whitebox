@@ -1,76 +1,122 @@
+//Import libraries
 'use strict';
-const program = require('commander');
-const colors = require('colors');
-const fs = require('fs');
+require('dotenv');
 const _ = require('lodash');
+const colors = require('colors');
+const readlineSync = require('readline-sync');
 
-const askContacts = require('./askContact.js');
+const readlineInfo = require('./readlineInfo.js');
+const commons = require('./commons.js');
+const actions = require('./actions.js');
 
 const fileName = 'contacts.txt';
-
+const headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 let contacts;
-let headers = ['Name', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
-function initialize() {
+function main() {
 
-  fs.readFile(fileName, 'utf8', function (err, data) {
-    if (err) {
-      throw err
-    }
-    console.log('File read');
+  //MENU OPTION SELECTION
+  let options = ['Add contact', 'Remove contact', 'Update contact', 'Contact list', 'Search for a contact'];
 
-    contacts = [];
-    data = data.split('\n');
+  // Reads text file and maps its element in an object array
+  commons.readContactsFile(fileName)
+    .then((data) => {
+      return commons.createContactsList(data, headers);
+    })
+    .then((data) => {
+      contacts = data;
 
-    _.map(data, (data) => {
-
-      data = _.split(data, ',');
-      let contact = {};
-      _.map(data, (info, i) => {
-        contact[headers[i]] = info.trim();
-      });
-
-      contacts.push(contact);
-    });
-
-    program.parse(process.argv);
-  });
+      let index = readlineSync.keyInSelect(options, 'What do you want to do? ', {guide: false});
+      console.log(colors.bold('**' + options[index] + '**'));
+      ++index;
+      let functionName = actions.getActionFunction(index);
+      functionName = 'start' + _.upperFirst(functionName);
+      eval(functionName)()
+    })
+    .catch(console.log);
 }
 
-program
-  .version('0.0.1');
-
-program
-  .option('1, -l', 'List all contacts', listContacts)
-  .option('2, -c', 'Create a new contact', createContact);
-
-
-if (!process.argv.slice(2).length) {
-  program.outputHelp(make_red);
-} else {
-  initialize();
+// TEST ENVIROMENT CONFIGURATION
+if (!(process.env.NODE_ENV === 'test')) {
+  main();
 }
 
-function make_red(txt) {
-  return colors.red(txt); //display the help text in red on the console
-}
-
-function listContacts() {
-  console.table(contacts);
-  /*console.log(_.map(contacts, (c, i) => {
-    return (i + 1) + '.\t' + _.values(c).join("\t\t| ")
-  }).join('\n'));*/
-}
-
-function createContact() {
-  askContacts.askQuestions(_.map(headers, (h) => {
-    return h + ': '
-  }))
+function startCreateContact() {
+  readlineInfo.askContactInfo(headers)
     .then(answers => {
-      console.log(answers);
-      fs.appendFile(fileName, '\n' + answers.join(', '), (err) => {
-        if (err) throw err;
-        console.log('The file has been saved!');
+      let contact = {};
+      _.each(answers, (a, i) => {
+        contact[_.camelCase(headers[i])] = a;
       });
+      actions.createContact(contact);
     });
+}
+
+// CALL ACTION METHODS
+function startRemoveContact() {
+
+  let contactName = readlineSync.question('Please write the name of contact that you want to delete: ');
+  let found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
+
+  if (!_.isEmpty(found)) {
+    let contact = _.first(found);
+    let sure = readlineSync.keyInYNStrict('Are you sure you want to delete ' + contactName + '?');
+
+    if (sure) {
+      actions.removeContact(contacts, contact);
+    }
+  } else {
+    console.log(colors.yellow('No contacts found to delete'));
+  }
+}
+
+function startUpdateContact() {
+  let contactName = readlineSync.question('Please write the name of contact that you want to update: ');
+  let found = commons.searchContacts(contacts, ['firstname', 'lastname'], contactName);
+
+  if (!_.isEmpty(found)) {
+
+    let contact = _.first(found);
+    let chosen = readlineSync.keyInSelect(headers, 'What field do you want to update: ',);
+
+    let property = headers[chosen];
+    let change = readlineSync.question('Please write the new ' + colors.bold(property) + ': ');
+
+    let update = actions.updateContact(contact, property, change);
+
+    if (update.isUpdated) {
+      contact = update.contact;
+      commons.rewriteContactsFile(fileName, contacts)
+        .then(() => {
+          console.log('The contact ' + colors.bold(contact.firstname + ' ' + contact.lastname) + ' has been updated successfully');
+        });
+    } else {
+      console.log(colors.bold.red('The contact has not been updated due to: ') + update.error);
+    }
+
+  }
+}
+
+function startListContacts() {
+  actions.listContacts(contacts);
+}
+
+function startSearchContact() {
+  let searchIn = ['Complete name', 'Nickname', 'Phone', 'Email'];
+  let chosen = readlineSync.keyInSelect(searchIn, 'Do you want to search by: ', {guide: false});
+
+  let property;
+  switch (chosen) {
+    case 0:
+      property = ['firstname', 'lastname'];
+      break;
+    case 1:
+    case 2:
+    case 3:
+      property = _.camelCase(searchIn[chosen]);
+      break;
+  }
+
+  let value = readlineSync.question('Please write your ' + property.toString() + ': ');
+  actions.searchContacts(contacts, property, value);
 }
