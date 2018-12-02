@@ -25,7 +25,7 @@ describe('Test cases: "program common" functions', function () {
   // COMMON PROGRAM FUNCTIONALITY
   it('TC1: Should check a valid contact', function () {
     let validation = commons.validateContact(contact);
-    assert.equal(_.isEmpty(validation.error), validation.error);
+    assert.ok(_.isEmpty(validation.error));
     assert.equal(validation.isValid, true);
   });
 
@@ -44,7 +44,8 @@ describe('Test cases: "program common" functions', function () {
     assert.equal(validation.isValid, false);
     let errorMessage = '- Firstname is greater than 50 characters\n' +
       '- Lastname is greater than 50 characters\n' +
-      '- Email "chris" is incorrect. It must include: "@" and "."';
+      '- Email "chris" is incorrect. It must include: "@" and "."\n' +
+      '- Phone number "p123" is incorrect. It must be only numbers';
     assert.equal(_.trim(validation.error), errorMessage);
   });
 

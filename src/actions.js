@@ -54,15 +54,17 @@ function createContact(contact) {
   let isCreated = false;
   if (_.isUndefined(contact) || _.isEmpty(contact)) {
     console.log(colors.yellow('No contact to create'));
-  }
 
-  let validation = commons.validateContact(contact);
-  if (validation.isValid) {
-    commons.addContactToFile(filename, contact);
-    console.log(colors.bold('\nThe contact has been saved successfully: '));
-    isCreated = true;
   } else {
-    console.log(colors.bold.red('\nThe contact has not been saved due to: ') + validation.error);
+
+    let validation = commons.validateContact(contact);
+    if (validation.isValid) {
+      commons.addContactToFile(filename, contact);
+      console.log(colors.bold('\nThe contact has been saved successfully: '));
+      isCreated = true;
+    } else {
+      console.log(colors.bold.red('\nThe contact has not been saved due to: ') + validation.error);
+    }
   }
 
   return {

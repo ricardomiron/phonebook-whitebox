@@ -20,7 +20,7 @@ let contact3 = {
   firstname: 'Christiansadsadsdfsdfsdfsdfsdfsdfqwertyuiokmnwertyu',
   lastname: 'Christiansadsadsdfsdfsdfsdfsdfsdfqwertyuiokmnwertyu',
   nickname: 'christian',
-  phone: '09876543456',
+  phone: 'p123; 09876543456',
   email: 'chris; chris@gmail.com'
 };
 
