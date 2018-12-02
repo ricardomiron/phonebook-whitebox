@@ -23,13 +23,13 @@ describe('Test cases: "program common" functions', function () {
   });
 
   // COMMON PROGRAM FUNCTIONALITY
-  it('TC12: Should check a valid contact', function () {
+  it('TC1: Should check a valid contact', function () {
     let validation = commons.validateContact(contact);
     assert.equal(_.isEmpty(validation.error), validation.error);
     assert.equal(validation.isValid, true);
   });
 
-  it('TC13: Should check a non valid contact', function () {
+  it('TC2: Should check a non valid contact', function () {
     let validation = commons.validateContact(contact2);
     assert.equal(validation.isValid, false);
     let errorMessage = '- There is no data for: nickname\n' +
@@ -39,7 +39,7 @@ describe('Test cases: "program common" functions', function () {
     assert.equal(_.trim(validation.error), _.trim(errorMessage));
   });
 
-  it('TC14: Should check a non valid contact', function () {
+  it('TC3: Should check a non valid contact', function () {
     let validation = commons.validateContact(contact3);
     assert.equal(validation.isValid, false);
     let errorMessage = '- Firstname is greater than 50 characters\n' +
@@ -48,20 +48,20 @@ describe('Test cases: "program common" functions', function () {
     assert.equal(_.trim(validation.error), errorMessage);
   });
 
-  it('TC15: Should search a contact with one property', function () {
+  it('TC4: Should search a contact with one property', function () {
     let found = commons.searchContacts(contacts, 'firstname', 'Carolina');
     assert.ok(!_.isEmpty(found) && _.isArray(found));
     assert.deepEqual(_.first(found), contact);
   });
 
-  it('TC16: Should search a contact with multiple properties', function () {
+  it('TC5: Should search a contact with multiple properties', function () {
     let found = commons.searchContacts(contacts, ['firstname', 'lastname'], 'Carolina Lopez');
     assert.ok(!_.isEmpty(found) && _.isArray(found));
     assert.deepEqual(_.first(found), contact);
   });
 
 
-  it('TC17: Should check if a list of contacts is created correctly', function () {
+  it('TC6: Should check if a list of contacts is created correctly', function () {
     let contactsAsString = 'Carolina, Lopez, lopenchi, 593984624937, lopenchii@gmail.com; caro.lopez@hotmail.com, 19/12/1993';
     let headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
@@ -75,7 +75,7 @@ describe('Test cases: "program common" functions', function () {
   let fileData;
   let fileName = 'test/data/contacts-test.txt';
 
-  it('TC18: Should check reading a file for not existing file', function (done) {
+  it('TC7: Should check reading a file for not existing file', function (done) {
 
     this.timeout(6000);
 
@@ -88,7 +88,7 @@ describe('Test cases: "program common" functions', function () {
       });
   });
 
-  it('TC19: Should check if contact was added to file correctly', function (done) {
+  it('TC8: Should check if contact was added to file correctly', function (done) {
 
     commons.addContactToFile(fileName, contact)
       .then(() => {
@@ -103,7 +103,7 @@ describe('Test cases: "program common" functions', function () {
       })
   });
 
-  it('TC20: Should check file was read correctly', function (done) {
+  it('TC9: Should check file was read correctly', function (done) {
     commons.readContactsFile(fileName)
       .then((data) => {
         fileData = data;
@@ -113,7 +113,7 @@ describe('Test cases: "program common" functions', function () {
       });
   });
 
-  it('TC21: Should check if a contact was rewritten conrrectly', function (done) {
+  it('TC10: Should check if a contact was rewritten conrrectly', function (done) {
 
     contacts.push(contact2);
     contacts.push(contact3);

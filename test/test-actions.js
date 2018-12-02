@@ -24,7 +24,7 @@ describe('Test cases: "program actions" functions', function () {
   });
 
 // MENU FUNCTIONALITY
-  it('TC1: Should check if action is allowed', function (done) {
+  it('TC11: Should check if action is allowed', function (done) {
     assert.equal(actions.getActionFunction(1), 'createContact');
     assert.equal(actions.getActionFunction(2), 'removeContact');
     assert.equal(actions.getActionFunction(3), 'updateContact');
@@ -33,14 +33,14 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
-  it('TC2: Should check if action is forbidden', function (done) {
+  it('TC12: Should check if action is forbidden', function (done) {
     assert.equal(actions.getActionFunction('a'), undefined);
     assert.equal(actions.getActionFunction(9), undefined);
     done();
   });
 
 // CREATE CONTACT
-  it('TC3: Should check create a valid contact', function (done) {
+  it('TC13: Should check create a valid contact', function (done) {
     this.timeout(10000);
     let creation = actions.createContact(contact);
     assert.ok(creation.isCreated);
@@ -52,7 +52,7 @@ describe('Test cases: "program actions" functions', function () {
       });
   });
 
-  it('TC4: Should check create an invalid contact', function (done) {
+  it('TC14: Should check create an invalid contact', function (done) {
     this.timeout(10000);
     let contactChanged = _.cloneDeep(contact);
     contactChanged.firstname = '';
@@ -62,7 +62,7 @@ describe('Test cases: "program actions" functions', function () {
   });
 
 // REMOVE CONTACT
-  it('TC5: Should check remove a valid contact', function (done) {
+  it('TC15: Should check remove a valid contact', function (done) {
     //console.log(contactsToRemove);
     let deletion = actions.removeContact(contactsToRemove, contact);
     assert.ok(deletion.isDeleted);
@@ -73,21 +73,21 @@ describe('Test cases: "program actions" functions', function () {
       });
   });
 
-  it('TC6: Should check remove an invalid contact', function (done) {
+  it('TC16: Should check remove an invalid contact', function (done) {
     let deletion = actions.removeContact(contactsToRemove, contact2);
     assert.ok(!deletion.isDeleted);
     done();
   });
 
 // LIST CONTACT
-  it('TC7: Should check listing existing contacts', function (done) {
+  it('TC17: Should check listing existing contacts', function (done) {
     //console.log(contacts);
     let shouldList = actions.listContacts(contacts);
     assert.ok(shouldList);
     done();
   });
 
-  it('TC8: Should check list without contact information', function (done) {
+  it('TC18: Should check list without contact information', function (done) {
     let shouldList = actions.listContacts(undefined);
     assert.ok(!shouldList);
 
@@ -97,7 +97,7 @@ describe('Test cases: "program actions" functions', function () {
   });
 
 // UPDATE CONTACT
-  it('TC9: Should check updating a valid contact', function (done) {
+  it('TC19: Should check updating a valid contact', function (done) {
     let original = _.cloneDeep(contact);
     let update = actions.updateContact(contact, 'lastname', 'Guanipatin', contacts);
     assert.ok(update.isUpdated);
@@ -107,13 +107,13 @@ describe('Test cases: "program actions" functions', function () {
   });
 
 // SEARCH CONTACT
-  it('TC10: Should check searching an existing contact', function (done) {
+  it('TC20: Should check searching an existing contact', function (done) {
     let search = actions.searchContacts(contacts, 'firstname', 'Carolina');
     assert.ok(search.displayed);
     done();
   });
 
-  it('TC11: Should check searching a non existant contact', function (done) {
+  it('TC21: Should check searching a non existant contact', function (done) {
     let search = actions.searchContacts(contacts, 'firstname', 'Monserratte');
     assert.ok(!search.displayed);
     done();
