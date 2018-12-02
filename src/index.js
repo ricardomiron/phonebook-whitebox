@@ -15,7 +15,7 @@ let contacts;
 
 function main() {
 
-  //Menu options
+  //MENU OPTION SELECTION
   let options = ['Add contact', 'Remove contact', 'Update contact', 'Contact list', 'Search for a contact'];
 
   // Reads text file and maps its element in an object array
@@ -36,6 +36,7 @@ function main() {
     .catch(console.log);
 }
 
+// TEST ENVIROMENT CONFIGURATION
 if (!(process.env.NODE_ENV === 'test')) {
   main();
 }
@@ -51,6 +52,7 @@ function startCreateContact() {
     });
 }
 
+// CALL ACTION METHODS
 function startRemoveContact() {
 
   let contactName = readlineSync.question('Please write the name of contact that you want to delete: ');

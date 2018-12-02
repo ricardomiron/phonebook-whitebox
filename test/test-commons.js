@@ -9,7 +9,7 @@ const commons = require('../src/commons');
 let contacts = [];
 let contact, contact2, contact3;
 
-describe('Test cases - "commons" functions', function () {
+describe('Test cases: "program common" functions', function () {
 
   before(function (done) {
 
@@ -22,33 +22,34 @@ describe('Test cases - "commons" functions', function () {
     done();
   });
 
-  it('Should check a valid contact', function () {
+  // COMMON PROGRAM FUNCTIONALITY
+  it('TC12: Should check a valid contact', function () {
     let validation = commons.validateContact(contact);
     assert.equal(validation.isValid, true);
   });
 
-  it('Should check a non validate contact', function () {
+  it('TC13: Should check a non valid contact', function () {
     assert.equal(commons.validateContact(contact2).isValid, false);
   });
 
-  it('Should check a non validate contact', function () {
+  it('TC14: Should check a non valid contact', function () {
     assert.equal(commons.validateContact(contact3).isValid, false);
   });
 
-  it('Should search a contact', function () {
+  it('TC15: Should search a contact with one property', function () {
     let found = commons.searchContacts(contacts, 'firstname', 'Carolina');
     assert.ok(!_.isEmpty(found) && _.isArray(found));
     assert.deepEqual(_.first(found), contact);
   });
 
-  it('Should search a contact with multiple properties', function () {
+  it('TC16: Should search a contact with multiple properties', function () {
     let found = commons.searchContacts(contacts, ['firstname', 'lastname'], 'Carolina Lopez');
     assert.ok(!_.isEmpty(found) && _.isArray(found));
     assert.deepEqual(_.first(found), contact);
   });
 
 
-  it('Should check a list of contacts is created', function () {
+  it('TC17: Should check if a list of contacts is created correctly', function () {
     let contactsAsString = 'Carolina, Lopez, lopenchi, 593984624937, lopenchii@gmail.com; caro.lopez@hotmail.com, 19/12/1993';
     let headers = ['Firstname', 'Lastname', 'Nickname', 'Phone', 'Email', 'Birthdate'];
 
@@ -58,11 +59,11 @@ describe('Test cases - "commons" functions', function () {
     assert.deepEqual(_.first(contacts), contact);
   });
 
-  /*Files methods*/
+// FILE INTERACTION FUNCTIONALITY
   let fileData;
   let fileName = 'test/data/contacts-test.txt';
 
-  it('Should check read file for not existing file', function (done) {
+  it('TC18: Should check reading a file for not existing path', function (done) {
 
     this.timeout(6000);
 
@@ -73,7 +74,7 @@ describe('Test cases - "commons" functions', function () {
       });
   });
 
-  it('Should check if contact was added to file', function (done) {
+  it('TC19: Should check if contact was added to file correctly', function (done) {
 
     commons.addContactToFile(fileName, contact)
       .then(() => {
@@ -88,7 +89,7 @@ describe('Test cases - "commons" functions', function () {
       })
   });
 
-  it('Should check file was read', function (done) {
+  it('TC20: Should check file was read correctly', function (done) {
     commons.readContactsFile(fileName)
       .then((data) => {
         fileData = data;
@@ -98,7 +99,7 @@ describe('Test cases - "commons" functions', function () {
       });
   });
 
-  it('Should check if contacts was rewritten', function (done) {
+  it('TC21: Should check if a contact was rewritten conrrectly', function (done) {
 
     contacts.push(contact2);
     contacts.push(contact3);
