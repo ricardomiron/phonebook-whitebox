@@ -22,6 +22,7 @@ describe('Test cases: "program common" functions', function () {
     done();
   });
 
+  // COMMON PROGRAM FUNCTIONALITY
   it('TC12: Should check a valid contact', function () {
     let validation = commons.validateContact(contact);
     assert.equal(validation.isValid, true);
@@ -58,7 +59,7 @@ describe('Test cases: "program common" functions', function () {
     assert.deepEqual(_.first(contacts), contact);
   });
 
-  /*Files methods*/
+// FILE INTERACTION FUNCTIONALITY
   let fileData;
   let fileName = 'test/data/contacts-test.txt';
 

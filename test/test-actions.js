@@ -23,6 +23,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
+// MENU FUNCTIONALITY
   it('TC1: Should check if action is allowed', function (done) {
     assert.equal(actions.getActionFunction(1), 'createContact');
     assert.equal(actions.getActionFunction(2), 'removeContact');
@@ -38,7 +39,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
-
+// CREATE CONTACT
   it('TC3: Should check create a valid contact', function (done) {
     this.timeout(10000);
     let creation = actions.createContact(contact);
@@ -60,6 +61,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
+// REMOVE CONTACT
   it('TC5: Should check remove a valid contact', function (done) {
     //console.log(contactsToRemove);
     let deletion = actions.removeContact(contactsToRemove, contact);
@@ -77,6 +79,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
+// LIST CONTACT
   it('TC7: Should check listing existing contacts', function (done) {
     console.log(contacts);
     let shouldList = actions.listContacts(contacts);
@@ -93,6 +96,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
+// UPDATE CONTACT
   it('TC9: Should check updating a valid contact', function (done) {
     let original = _.cloneDeep(contact);
     let update = actions.updateContact(contact, 'lastname', 'Guanipatin', contacts);
@@ -102,6 +106,7 @@ describe('Test cases: "program actions" functions', function () {
     done();
   });
 
+// SEARCH CONTACT
   it('TC10: Should check searching an existing contact', function (done) {
     let search = actions.searchContacts(contacts, 'firstname', 'Carolina');
     assert.ok(search.displayed);
