@@ -78,7 +78,7 @@ describe('Test cases: "program actions" functions', function () {
   });
 
   it('Should check list contacts function - successfull', function (done) {
-    console.log(contacts);
+    //console.log(contacts);
     let shouldList = actions.listContacts(contacts);
     assert.ok(shouldList);
     done();
